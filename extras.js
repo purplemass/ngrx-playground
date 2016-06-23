@@ -1,3 +1,5 @@
+// ----------------------------------------------------------------------------
+
 // create a proper Observer:
 var observer = Rx.Observer.create(
    (x) => console.log('onNext: %s', x),
@@ -13,3 +15,45 @@ var usersObserverProper = Rx.Observer.create(users => {
       $('<li>' + user + '</li>').appendTo($results)
     });
 });
+
+// ----------------------------------------------------------------------------
+// oldr code
+// ----------------------------------------------------------------------------
+
+function searchWikipedia (term) {
+  return $.ajax({
+    url: 'http://en.wikipedia.org/w/api.php',
+    dataType: 'jsonp',
+    data: {
+      action: 'opensearch',
+      format: 'json',
+      search: term
+    }
+  }).promise();
+}
+
+function wikipedia() {
+   /* Only get the value from each key up */
+  var keyups = Rx.Observable.fromEvent($input, 'keyup')
+    .map(e => e.target.value)
+    .filter(text => text.length > 2)
+    // Now throttle/debounce the input for 500ms
+    .throttle(500 /* ms */ )
+    // Now get only distinct values, so we eliminate the arrows and other control characters
+    .distinctUntilChanged()
+    .flatMapLatest(searchWikipedia);
+
+  keyups.subscribe((data) => {
+    console.log(data);
+    var res = data[1];
+    // Do something with the data like binding
+    $results.empty();
+    $.each(res, (_, value) => $('<li>' + value + '</li>').appendTo($results));
+  }, error => {
+    // handle any errors
+    $results.empty();
+    $('<li>Error: ' + error + '</li>').appendTo($results);
+  });
+}
+
+// ----------------------------------------------------------------------------
