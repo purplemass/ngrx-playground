@@ -8,6 +8,14 @@ return Rx.Observable.create(observer => {
   return () => console.log('disposed');
 });
 
+// careful when using .catch()
+return firstChoice()
+  .catch(secondChoice(requestUrl)) // <-- this will run secondChoice every time!
+  // above is wrong!
+  .catch(() => secondChoice(requestUrl)) // <-- this is the correct way
+  .finally(() => console.log('finally'))
+;
+
 // create a proper Observer:
 var observer = Rx.Observer.create(
    (x) => console.log('onNext: %s', x),
