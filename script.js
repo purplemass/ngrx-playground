@@ -1,7 +1,7 @@
 "use strict";
 
 // var apiURL = 'https://api.github.com/users?since=';
-var apiURL = 'http://uinames.com/api/?amount=100';
+var apiURL = 'http://uinames.com/api/?amount=10';
 var storageKey = 'gitHubData';
 var gitHubData = localStorage.getItem(storageKey);
 
@@ -49,7 +49,7 @@ var usersObserver = (users) => {
   users
     .map(user => user.name)
     .forEach((user) => {
-      $('<li>' + user + '</li>').appendTo($results)
+      $(`<li> ${user} </li>`).appendTo($results)
   });
 }
 
@@ -57,15 +57,18 @@ var usersObserver = (users) => {
 
 function doRxComplex1() {
   var refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click');
-  var responseStream = refreshClickStream.startWith('startup click')
+  var responseStream = refreshClickStream
+    .startWith('startup click')
     .map(() => {
       return apiURL;
     })
     .flatMap(resultsObservable);
 
+  // separation of conerns: handling DOM in different places
   refreshClickStream.subscribe(() => {
     $results.html("");
   });
 
+  // to print all users
   responseStream.subscribe(usersObserver);
 }
