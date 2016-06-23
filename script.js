@@ -50,12 +50,11 @@ var usersObserver = (users) => {
       $('<li>' + user + '</li>').appendTo($results)
   });
 }
+
 // ----------------------------------------------------------------------------
 
 function doRxComplex1() {
   var refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click');
-  // refreshClickStream.throttle(1500 /* ms */ );
-
   var requestStream = refreshClickStream.startWith('startup click')
     .map(() => {
       var randomOffset = Math.floor(Math.random()*500);
