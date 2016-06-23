@@ -2,26 +2,11 @@ var $input,
     $results,
     $refreshButton;
 
+// ----------------------------------------------------------------------------
+
+var apiURL = 'https://api.github.com/users?since=';
 var storageKey = 'gitHubData';
-
-var gitHubObservable = function(requestUrl) {
-  return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
-}
-
-var resultsObservable = function(requestUrl) {
-  var gitHubData = localStorage.getItem(storageKey);
-  if (!gitHubData) {
-    var githubRequest = gitHubObservable;
-    return githubRequest;
-  } else {
-    gitHubData = JSON.parse(gitHubData);
-    return Rx.Observable.create(observer => {
-      observer.onNext(gitHubData);
-      // observer.onCompleted();
-      return () => console.log('disposed')
-    });
-  }
-}
+var gitHubData = localStorage.getItem(storageKey);
 
 // ----------------------------------------------------------------------------
 
@@ -36,6 +21,29 @@ $(function() {
 
 // ----------------------------------------------------------------------------
 
+var gitHubObservable = (requestUrl) => {
+  return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
+    .do(response => {
+      localStorage.setItem(storageKey, JSON.stringify(response));
+      console.log('save to storage!');
+    });
+}
+
+var resultsObservable = (requestUrl) => {
+  if (!gitHubData) {
+    return gitHubObservable(requestUrl);
+  } else {
+    data = JSON.parse(gitHubData);
+    return Rx.Observable.create(observer => {
+      observer.onNext(data);
+      // observer.onCompleted();
+      return () => console.log('disposed')
+    });
+  }
+}
+
+// ----------------------------------------------------------------------------
+
 function doRxComplex1() {
   var refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click');
   // refreshClickStream.throttle(1500 /* ms */ );
@@ -43,17 +51,19 @@ function doRxComplex1() {
   var requestStream = refreshClickStream.startWith('startup click')
     .map(() => {
       var randomOffset = Math.floor(Math.random()*500);
-      return 'https://api.github.com/users?since=' + randomOffset;
+      return apiURL + randomOffset;
     })
-    .flatMap(resultsObservable);
+    .flatMap(resultsObservable)
+    // .flatMap(requestUrl => {
+    //   return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl));
+    // })
+    ;
 
-  refreshClickStream.subscribe(function() {
+  refreshClickStream.subscribe(() => {
     $results.html("");
   });
 
   requestStream.subscribe(response => {
-    console.info(response);
-    // localStorage.setItem('response', JSON.stringify(response));
     response
       .map(x => x.login)
       .forEach((res) => {
