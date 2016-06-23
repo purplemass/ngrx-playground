@@ -1,7 +1,7 @@
 "use strict";
 
 // var apiURL = 'https://api.github.com/users?since=';
-var apiURL = 'http://uinames.com/api/?amount=10';
+var apiURL = 'http://uinames.com/api/?amount=100';
 var storageKey = 'gitHubData';
 var gitHubData = localStorage.getItem(storageKey);
 
@@ -65,28 +65,36 @@ function doRxComplex1() {
     .flatMap(resultsObservable);
 
   // separation of conerns: handling DOM in different places
-  refreshClickStream.subscribe(() => {
-    $results.html("");
-  });
+  // refreshClickStream.subscribe(() => {
+  //   $results.html("");
+  // });
 
   // to print all users
-  responseStream.subscribe(usersObserver);
+  // responseStream.subscribe(usersObserver);
 
-  var user1Stream = responseStream
-    .map(function(listUsers) {
-      return listUsers[Math.floor(Math.random()*listUsers.length)];
-    })
-    .merge(
-      refreshClickStream.map(() => { return null; })
-    )
-    .startWith(null);
+  [1, 2, 3].forEach(x => {
+    var closeButton = document.querySelector(`#close${x}`);
+    var closeClickStream = Rx.Observable.fromEvent(closeButton, 'click')
+      .startWith('startup click');
 
-  user1Stream.subscribe((user) => {
-    if (!user) {
-      $('#user1').html(``);
-    } else {
-      $('#user1').html(`${user.name} ${user.surname} [${user.gender}] ${user.region}`);
-    }
+    var userStream = closeClickStream
+      .combineLatest(responseStream,
+        (click, listUsers) => {
+          return listUsers[Math.floor(Math.random()*listUsers.length)];
+        }
+      )
+      .merge(
+        refreshClickStream.map(() => { return null; })
+      )
+      .startWith(null);
+
+    userStream.subscribe((user) => {
+      console.log(x + ' ' + user)
+      if (!user) {
+        $(`#user${x}`).html('');
+      } else {
+        $(`#user${x}`).html(`${user.name} ${user.surname} [${user.gender}] ${user.region}`);
+      }
+    });
   });
-
 }
