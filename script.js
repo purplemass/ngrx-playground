@@ -72,16 +72,16 @@ function doRxComplex1() {
   // to print all users
   responseStream.subscribe(usersObserver);
 
-  var suggestion1Stream = responseStream
+  var user1Stream = responseStream
     .map(function(listUsers) {
       return listUsers[Math.floor(Math.random()*listUsers.length)];
     })
     .merge(
       refreshClickStream.map(() => { return null; })
     )
-    // .startWith(null);
+    .startWith(null);
 
-  suggestion1Stream.subscribe((user) => {
+  user1Stream.subscribe((user) => {
     if (!user) {
       $('#user1').html(``);
     } else {
