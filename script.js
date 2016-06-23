@@ -34,7 +34,7 @@ var storageObservable = () => {
   } else {
     return Rx.Observable.create(observer => {
       observer.onNext(JSON.parse(gitHubData));
-    });
+    }).delay(1000);
   }
 }
 
