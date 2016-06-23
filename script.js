@@ -5,16 +5,13 @@ var apiURL = 'http://uinames.com/api/?amount=100';
 var storageKey = 'gitHubData';
 var gitHubData = localStorage.getItem(storageKey);
 
-var $input,
-    $results,
-    $refreshButton;
+var $input = document.querySelector('#input');
+var $results = document.querySelector('#results');
+var $refreshButton = document.querySelector('.refresh');
 
 // ----------------------------------------------------------------------------
 
 $(function() {
-  $input = $('#input')
-  $results = $('#results');
-  $refreshButton = document.querySelector('.refresh');
   doRxComplex1();
 });
 
@@ -89,7 +86,6 @@ function doRxComplex1() {
       .startWith(null);
 
     userStream.subscribe((user) => {
-      console.log(x + ' ' + user)
       if (!user) {
         $(`#user${x}`).html('');
       } else {
