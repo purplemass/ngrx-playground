@@ -1,5 +1,13 @@
 // ----------------------------------------------------------------------------
 
+return Rx.Observable.create(observer => {
+  observer.onNext(100);
+  observer.onCompleted();
+  // throw error
+  // observer.onError(true);
+  return () => console.log('disposed');
+});
+
 // create a proper Observer:
 var observer = Rx.Observer.create(
    (x) => console.log('onNext: %s', x),
