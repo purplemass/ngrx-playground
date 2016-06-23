@@ -1,7 +1,7 @@
 "use strict";
 
 // var apiURL = 'https://api.github.com/users?since=';
-var apiURL = 'http://uinames.com/api/?amount=';
+var apiURL = 'http://uinames.com/api/?amount=100';
 var storageKey = 'gitHubData';
 var gitHubData = localStorage.getItem(storageKey);
 
@@ -57,10 +57,9 @@ var usersObserver = (users) => {
 
 function doRxComplex1() {
   var refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click');
-  var requestStream = refreshClickStream.startWith('startup click')
+  var responseStream = refreshClickStream.startWith('startup click')
     .map(() => {
-      var randomOffset = 2 + Math.floor(Math.random()*5);
-      return apiURL + randomOffset;
+      return apiURL;
     })
     .flatMap(resultsObservable);
 
@@ -68,5 +67,5 @@ function doRxComplex1() {
     $results.html("");
   });
 
-  requestStream.subscribe(usersObserver);
+  responseStream.subscribe(usersObserver);
 }
