@@ -1,12 +1,10 @@
-var $input,
-    $results,
-    $refreshButton;
-
-// ----------------------------------------------------------------------------
-
 var apiURL = 'https://api.github.com/users?since=';
 var storageKey = 'gitHubData';
 var gitHubData = localStorage.getItem(storageKey);
+
+var $input,
+    $results,
+    $refreshButton;
 
 // ----------------------------------------------------------------------------
 
@@ -25,23 +23,33 @@ var gitHubObservable = (requestUrl) => {
   return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
     .do(response => {
       localStorage.setItem(storageKey, JSON.stringify(response));
-      console.log('save to storage!');
+      console.log('github saved to storage!');
     });
+}
+
+var storageObservable = () => {
+  return Rx.Observable.create(observer => {
+    observer.onNext(JSON.parse(gitHubData));
+    // observer.onCompleted();
+    return () => console.log('disposed')
+  });
 }
 
 var resultsObservable = (requestUrl) => {
   if (!gitHubData) {
     return gitHubObservable(requestUrl);
   } else {
-    data = JSON.parse(gitHubData);
-    return Rx.Observable.create(observer => {
-      observer.onNext(data);
-      // observer.onCompleted();
-      return () => console.log('disposed')
-    });
+    return storageObservable();
   }
 }
 
+var usersObserver = (users) => {
+  users
+    .map(user => user.login)
+    .forEach((user) => {
+      $('<li>' + user + '</li>').appendTo($results)
+  });
+}
 // ----------------------------------------------------------------------------
 
 function doRxComplex1() {
@@ -53,43 +61,13 @@ function doRxComplex1() {
       var randomOffset = Math.floor(Math.random()*500);
       return apiURL + randomOffset;
     })
-    .flatMap(resultsObservable)
-    // .flatMap(requestUrl => {
-    //   return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl));
-    // })
-    ;
+    .flatMap(resultsObservable);
 
   refreshClickStream.subscribe(() => {
     $results.html("");
   });
 
-  requestStream.subscribe(response => {
-    response
-      .map(x => x.login)
-      .forEach((res) => {
-        $('<li>' + res + '</li>').appendTo($results)
-    });
-  });
-}
-
-// ----------------------------------------------------------------------------
-
-function doRxSimple() {
-  var requestStream = Rx.Observable.just('https://api.github.com/users');
-  var refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click');
-
-  var responseStream = requestStream
-    .flatMap(function(requestUrl) {
-      return resultsObservable;
-    });
-
-  responseStream.subscribe(response => {
-    response
-      .map(x => x.login)
-      .forEach((res) => {
-        $('<li>' + res + '</li>').appendTo($results)
-    });
-  });
+  requestStream.subscribe(usersObserver);
 }
 
 // ----------------------------------------------------------------------------
