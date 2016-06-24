@@ -20,6 +20,7 @@ function doRxComplex1() {
     .throttle(250);
 
   const gitHubObservable = (requestUrl) => {
+    console.log('gitHubObservable');
     return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
       .do(response => {
         console.log('github saved to storage!');
@@ -28,6 +29,7 @@ function doRxComplex1() {
   }
 
   const storageObservable = () => {
+    console.log('storageObservable');
     if (!gitHubData) {
       return Rx.Observable.throw(new Error());
     } else {
@@ -55,7 +57,8 @@ function doRxComplex1() {
   const responseStream = refreshClickStream
     .startWith('startup click')
     .map(() => apiURL)
-    .flatMap(resultsObservable);
+    .flatMap(resultsObservable)
+    .share();
 
   // separation of conerns: handling DOM in different places
   // refreshClickStream.subscribe(() => {
