@@ -3,7 +3,6 @@
 // const apiURL = 'https://api.github.com/users?since=';
 const apiURL = 'http://uinames.com/api/?amount=300';
 const storageKey = 'gitHubData';
-const gitHubData = localStorage.getItem(storageKey);
 
 const $input = document.querySelector('#input');
 const $results = document.querySelector('#results');
@@ -28,22 +27,20 @@ function doRxComplex1() {
       });
   }
 
-  const storageObservable = () => {
+  const storageObservable = Rx.Observable.create(observer => {
     console.log('storageObservable');
-    if (!gitHubData) {
-      return Rx.Observable.throw(new Error());
+    var data = localStorage.getItem(storageKey);
+    if (!data) {
+      observer.onError(true);
     } else {
-      return Rx.Observable.create(observer => {
-        observer.onNext(JSON.parse(gitHubData));
-      }).delay(500);
+      observer.onNext(JSON.parse(data));
     }
-  }
+  }).delay(500);
 
   const resultsObservable = (requestUrl) => {
-    return storageObservable()
+    return storageObservable
       .catch(() => gitHubObservable(requestUrl))
-      .finally(() => console.log('finally'))
-    ;
+      .finally(() => console.log('finally'));
   };
 
   const responseStream = refreshClickStream
