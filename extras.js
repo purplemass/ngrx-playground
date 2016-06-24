@@ -1,5 +1,24 @@
 // ----------------------------------------------------------------------------
 
+  const usersObserver = (users) => {
+    console.log(users)
+    users
+      .map(user => user.name)
+      .forEach((user) => {
+        $(`<li> ${user} </li>`).appendTo($results);
+    });
+  }
+
+  // separation of conerns: handling DOM in different places
+  refreshClickStream.subscribe(() => {
+    $results.html("");
+  });
+
+  // to print all users
+  responseStream.subscribe(usersObserver);
+
+// ----------------------------------------------------------------------------
+
 return Rx.Observable.create(observer => {
   observer.onNext(100);
   observer.onCompleted();

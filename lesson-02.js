@@ -46,27 +46,11 @@ function doRxComplex1() {
     ;
   };
 
-  const usersObserver = (users) => {
-    users
-      .map(user => user.name)
-      .forEach((user) => {
-        $(`<li> ${user} </li>`).appendTo($results)
-    });
-  }
-
   const responseStream = refreshClickStream
     .startWith('startup click')
     .map(() => apiURL)
     .flatMap(resultsObservable)
     .share();
-
-  // separation of conerns: handling DOM in different places
-  // refreshClickStream.subscribe(() => {
-  //   $results.html("");
-  // });
-
-  // to print all users
-  // responseStream.subscribe(usersObserver);
 
   [1, 2, 3].forEach(x => {
     const closeButton = document.querySelector(`#close${x}`);
