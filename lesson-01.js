@@ -12,7 +12,7 @@ var clickStream = Rx.Observable.fromEvent(button, 'click')
 
 var doubleClickStream = clickStream
   // .buffer(() => clickStream.throttle(250)) // <-- wrong in the lesson
-  .buffer(clickStream.throttle(250))          // <-- works now
+  .buffer(clickStream.delay(250))          // <-- works now
   .map(arr => arr.length)
   .filter(len => len === 2);
 
@@ -24,7 +24,7 @@ doubleClickStream
   // .throttle(1000)  // <-- wrong in the lesson
   .delay(1000)        // <-- works now
   .subscribe(x => {
-    label.textContent = '&nbsp;';
+    label.textContent = '';
   })
 
 /*
