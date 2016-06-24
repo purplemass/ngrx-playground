@@ -1,13 +1,13 @@
 "use strict";
 
-// var apiURL = 'https://api.github.com/users?since=';
-var apiURL = 'http://uinames.com/api/?amount=100';
-var storageKey = 'gitHubData';
-var gitHubData = localStorage.getItem(storageKey);
+// const apiURL = 'https://api.github.com/users?since=';
+const apiURL = 'http://uinames.com/api/?amount=100';
+const storageKey = 'gitHubData';
+const gitHubData = localStorage.getItem(storageKey);
 
-var $input = document.querySelector('#input');
-var $results = document.querySelector('#results');
-var $refreshButton = document.querySelector('.refresh');
+const $input = document.querySelector('#input');
+const $results = document.querySelector('#results');
+const $refreshButton = document.querySelector('.refresh');
 
 // ----------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ $(function() {
 
 // ----------------------------------------------------------------------------
 
-var gitHubObservable = (requestUrl) => {
+const gitHubObservable = (requestUrl) => {
   return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
     .do(response => {
       console.log('github saved to storage!');
@@ -25,7 +25,7 @@ var gitHubObservable = (requestUrl) => {
     });
 }
 
-var storageObservable = () => {
+const storageObservable = () => {
   if (!gitHubData) {
     return Rx.Observable.throw(new Error());
   } else {
@@ -35,14 +35,14 @@ var storageObservable = () => {
   }
 }
 
-var resultsObservable = (requestUrl) => {
+const resultsObservable = (requestUrl) => {
   return storageObservable()
     .catch(() => gitHubObservable(requestUrl))
     .finally(() => console.log('finally'))
   ;
 };
 
-var usersObserver = (users) => {
+const usersObserver = (users) => {
   users
     .map(user => user.name)
     .forEach((user) => {
@@ -53,8 +53,8 @@ var usersObserver = (users) => {
 // ----------------------------------------------------------------------------
 
 function doRxComplex1() {
-  var refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click');
-  var responseStream = refreshClickStream
+  const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click');
+  const responseStream = refreshClickStream
     .startWith('startup click')
     .map(() => {
       return apiURL;
@@ -70,11 +70,11 @@ function doRxComplex1() {
   // responseStream.subscribe(usersObserver);
 
   [1, 2, 3].forEach(x => {
-    var closeButton = document.querySelector(`#close${x}`);
-    var closeClickStream = Rx.Observable.fromEvent(closeButton, 'click')
+    const closeButton = document.querySelector(`#close${x}`);
+    const closeClickStream = Rx.Observable.fromEvent(closeButton, 'click')
       .startWith('startup click');
 
-    var userStream = closeClickStream
+    const userStream = closeClickStream
       .combineLatest(responseStream,
         (click, listUsers) => {
           return listUsers[Math.floor(Math.random()*listUsers.length)];
