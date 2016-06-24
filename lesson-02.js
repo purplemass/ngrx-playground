@@ -53,7 +53,9 @@ const usersObserver = (users) => {
 // ----------------------------------------------------------------------------
 
 function doRxComplex1() {
-  const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click');
+  const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click')
+    .throttle(250);
+
   const responseStream = refreshClickStream
     .startWith('startup click')
     .map(() => apiURL)
