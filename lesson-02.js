@@ -9,12 +9,20 @@ const $results = document.querySelector('#results');
 const $refreshButton = document.querySelector('.refresh');
 
 $(function() {
-  doRxComplex1();
+  doRx();
 });
+
+function htmlUser(x, user) {
+  if (!user) {
+    $(`#user${x}`).html('');
+  } else {
+    $(`#user${x}`).html(`${user.name} ${user.surname} [${user.gender}] ${user.region}`);
+  }
+}
 
 // ----------------------------------------------------------------------------
 
-function doRxComplex1() {
+function doRx() {
   const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click')
     .throttle(250);
 
@@ -37,7 +45,7 @@ function doRxComplex1() {
     }
   }).delay(500);
 
-  const resultsObservable = (requestUrl) => {
+  const dataObservable = (requestUrl) => {
     return storageObservable
       .catch(() => gitHubObservable(requestUrl))
       .finally(() => console.log('finally'));
@@ -46,15 +54,17 @@ function doRxComplex1() {
   const responseStream = refreshClickStream
     .startWith('startup click')
     .map(() => apiURL)
-    .flatMap(resultsObservable)
+    .flatMap(dataObservable)
     .share();
+
+  // add 3 user carriages
 
   [1, 2, 3].forEach(x => {
     const closeButton = document.querySelector(`#close${x}`);
     const closeClickStream = Rx.Observable.fromEvent(closeButton, 'click')
       .startWith('startup click');
 
-    const userStream = closeClickStream
+    closeClickStream
       .combineLatest(responseStream,
         (click, listUsers) => {
           return listUsers[Math.floor(Math.random()*listUsers.length)];
@@ -63,14 +73,7 @@ function doRxComplex1() {
       .merge(
         refreshClickStream.map(() => { return null; })
       )
-      .startWith(null);
-
-    userStream.subscribe((user) => {
-      if (!user) {
-        $(`#user${x}`).html('');
-      } else {
-        $(`#user${x}`).html(`${user.name} ${user.surname} [${user.gender}] ${user.region}`);
-      }
-    });
+      .startWith(null)
+      .subscribe((user) => htmlUser(x, user));
   });
 }
