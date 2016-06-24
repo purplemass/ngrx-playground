@@ -1,7 +1,7 @@
 "use strict";
 
 // const apiURL = 'https://api.github.com/users?since=';
-const apiURL = 'http://uinames.com/api/?amount=100';
+const apiURL = 'http://uinames.com/api/?amount=300';
 const storageKey = 'gitHubData';
 const gitHubData = localStorage.getItem(storageKey);
 
@@ -56,9 +56,7 @@ function doRxComplex1() {
   const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click');
   const responseStream = refreshClickStream
     .startWith('startup click')
-    .map(() => {
-      return apiURL;
-    })
+    .map(() => apiURL)
     .flatMap(resultsObservable);
 
   // separation of conerns: handling DOM in different places
