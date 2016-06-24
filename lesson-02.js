@@ -7,6 +7,7 @@ const storageKey = 'gitHubData';
 const $input = document.querySelector('#input');
 const $results = document.querySelector('#results');
 const $refreshButton = document.querySelector('.refresh');
+const $message = document.querySelector('#message');
 
 $(function() {
   doRx();
@@ -29,7 +30,7 @@ function doRx() {
   const gitHubObservable = (requestUrl) => {
     return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
       .do(response => {
-        console.log('github saved to storage!');
+        $message.textContent = 'API data fetched and saved to storage!';
         localStorage.setItem(storageKey, JSON.stringify(response));
       });
   }
@@ -37,8 +38,10 @@ function doRx() {
   const storageObservable = Rx.Observable.create(observer => {
     var data = localStorage.getItem(storageKey);
     if (!data) {
-      observer.onError(true);
+      $message.textContent = 'No stored API data found!';
+      observer.onError('no data');
     } else {
+      $message.textContent = 'Using stored API data';
       observer.onNext(JSON.parse(data));
     }
   }).delay(500);
