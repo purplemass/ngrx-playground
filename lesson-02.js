@@ -9,52 +9,48 @@ const $input = document.querySelector('#input');
 const $results = document.querySelector('#results');
 const $refreshButton = document.querySelector('.refresh');
 
-// ----------------------------------------------------------------------------
-
 $(function() {
   doRxComplex1();
 });
 
 // ----------------------------------------------------------------------------
 
-const gitHubObservable = (requestUrl) => {
-  return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
-    .do(response => {
-      console.log('github saved to storage!');
-      localStorage.setItem(storageKey, JSON.stringify(response));
-    });
-}
-
-const storageObservable = () => {
-  if (!gitHubData) {
-    return Rx.Observable.throw(new Error());
-  } else {
-    return Rx.Observable.create(observer => {
-      observer.onNext(JSON.parse(gitHubData));
-    }).delay(500);
-  }
-}
-
-const resultsObservable = (requestUrl) => {
-  return storageObservable()
-    .catch(() => gitHubObservable(requestUrl))
-    .finally(() => console.log('finally'))
-  ;
-};
-
-const usersObserver = (users) => {
-  users
-    .map(user => user.name)
-    .forEach((user) => {
-      $(`<li> ${user} </li>`).appendTo($results)
-  });
-}
-
-// ----------------------------------------------------------------------------
-
 function doRxComplex1() {
   const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click')
     .throttle(250);
+
+  const gitHubObservable = (requestUrl) => {
+    return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
+      .do(response => {
+        console.log('github saved to storage!');
+        localStorage.setItem(storageKey, JSON.stringify(response));
+      });
+  }
+
+  const storageObservable = () => {
+    if (!gitHubData) {
+      return Rx.Observable.throw(new Error());
+    } else {
+      return Rx.Observable.create(observer => {
+        observer.onNext(JSON.parse(gitHubData));
+      }).delay(500);
+    }
+  }
+
+  const resultsObservable = (requestUrl) => {
+    return storageObservable()
+      .catch(() => gitHubObservable(requestUrl))
+      .finally(() => console.log('finally'))
+    ;
+  };
+
+  const usersObserver = (users) => {
+    users
+      .map(user => user.name)
+      .forEach((user) => {
+        $(`<li> ${user} </li>`).appendTo($results)
+    });
+  }
 
   const responseStream = refreshClickStream
     .startWith('startup click')

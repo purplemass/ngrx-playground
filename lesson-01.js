@@ -1,11 +1,7 @@
 "use strict";
 
-// ----------------------------------------------------------------------------
-
 const button = document.querySelector('.refresh');
 const label = document.querySelector('h5');
-
-// ----------------------------------------------------------------------------
 
 const clickStream = Rx.Observable.fromEvent(button, 'click')
   .map(ev => ev.clientX); // <-- doesn't contribute much
