@@ -27,7 +27,6 @@ function doRx() {
     .throttle(250);
 
   const gitHubObservable = (requestUrl) => {
-    console.log('gitHubObservable');
     return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
       .do(response => {
         console.log('github saved to storage!');
@@ -36,7 +35,6 @@ function doRx() {
   }
 
   const storageObservable = Rx.Observable.create(observer => {
-    console.log('storageObservable');
     var data = localStorage.getItem(storageKey);
     if (!data) {
       observer.onError(true);
@@ -45,16 +43,14 @@ function doRx() {
     }
   }).delay(500);
 
-  const dataObservable = (requestUrl) => {
-    return storageObservable
-      .catch(() => gitHubObservable(requestUrl))
-      .finally(() => console.log('finally'));
-  };
-
   const responseStream = refreshClickStream
-    .startWith('startup click')
-    .map(() => apiURL)
-    .flatMap(dataObservable)
+    .startWith('dummy startup click')
+    .map(() => `${apiURL}` ) // <-- we could change the query string here
+    .flatMap((requestUrl) =>
+      storageObservable
+        .catch(() => gitHubObservable(requestUrl))
+        .finally(() => console.log('finally'))
+    )
     .share();
 
   // add 3 user carriages
@@ -62,7 +58,7 @@ function doRx() {
   [1, 2, 3].forEach(x => {
     const closeButton = document.querySelector(`#close${x}`);
     const closeClickStream = Rx.Observable.fromEvent(closeButton, 'click')
-      .startWith('startup click');
+      .startWith('dummy startup click');
 
     closeClickStream
       .combineLatest(responseStream,
