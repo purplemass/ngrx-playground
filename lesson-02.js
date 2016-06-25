@@ -14,15 +14,6 @@ $(function() {
   doRx();
 });
 
-function htmlUser(x, user) {
-  if (!user) {
-    $(`.userDiv`).hide('fast');
-  } else {
-    $(`.userDiv`).show('fast');
-    $(`#user${x}`).html(`${user.name} ${user.surname} [${user.gender}] ${user.region}`);
-  }
-}
-
 // ----------------------------------------------------------------------------
 
 function doRx() {
@@ -32,17 +23,17 @@ function doRx() {
   const resetClickStream = Rx.Observable.fromEvent($resetButton, 'click')
     .throttle(250)
     .do(x => {
-      $message.textContent = 'Stored data cleared';
+      showMessage('Stored data cleared');
       localStorage.clear();
     });
 
   const storageObservable = Rx.Observable.create(observer => {
     var data = localStorage.getItem(storageKey);
     if (!data) {
-      $message.textContent = 'No stored API data found!';
+      showMessage('No stored API data found!');
       observer.onError('no data');
     } else {
-      $message.textContent = 'Using stored API data';
+      showMessage('Using stored API data');
       observer.onNext(JSON.parse(data));
     }
   }).delay(500);
@@ -50,7 +41,7 @@ function doRx() {
   function gitHubObservable(requestUrl) {
     return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
       .do(response => {
-        $message.textContent = 'API data fetched and saved to storage!';
+        showMessage('API data fetched and saved to storage!');
         localStorage.setItem(storageKey, JSON.stringify(response));
       });
   }
@@ -88,3 +79,21 @@ function doRx() {
       .subscribe((user) => htmlUser(x, user));
   });
 }
+
+// ----------------------------------------------------------------------------
+
+function htmlUser(x, user) {
+  if (!user) {
+    $(`.userDiv`).hide('fast');
+  } else {
+    $(`.userDiv`).show('fast');
+    $(`#user${x}`).html(`${user.name} ${user.surname} [${user.gender}] ${user.region}`);
+  }
+}
+
+
+function showMessage(msg) {
+  $message.textContent = msg;
+}
+
+// ----------------------------------------------------------------------------
