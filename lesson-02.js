@@ -27,14 +27,6 @@ function doRx() {
   const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click')
     .throttle(250);
 
-  const gitHubObservable = (requestUrl) => {
-    return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
-      .do(response => {
-        $message.textContent = 'API data fetched and saved to storage!';
-        localStorage.setItem(storageKey, JSON.stringify(response));
-      });
-  }
-
   const storageObservable = Rx.Observable.create(observer => {
     var data = localStorage.getItem(storageKey);
     if (!data) {
@@ -46,10 +38,18 @@ function doRx() {
     }
   }).delay(500);
 
+  function gitHubObservable(requestUrl) {
+    return Rx.Observable.fromPromise(jQuery.getJSON(requestUrl))
+      .do(response => {
+        $message.textContent = 'API data fetched and saved to storage!';
+        localStorage.setItem(storageKey, JSON.stringify(response));
+      });
+  }
+
   const responseStream = refreshClickStream
     .startWith('dummy startup click')
     .map(() => `${apiURL}` ) // <-- we could change the query string here
-    .flatMap((requestUrl) =>
+    .flatMap(requestUrl =>
       storageObservable
         .catch(() => gitHubObservable(requestUrl))
         .finally(() => console.log('finally'))
