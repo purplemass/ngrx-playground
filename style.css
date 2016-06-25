@@ -1,0 +1,28 @@
+.content {
+  width: 340px;
+}
+
+hr.hr-style-four {
+  height: 12px;
+  border: 0;
+  box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);
+}
+
+#message {
+  padding: 10px;
+  background-color: #EEE;
+}
+
+.userDiv {
+  display: none;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #CCC;
+}
+
+.close {
+  float: right;
+  font-size: 0.7em;
+  text-decoration: underline;
+  cursor: pointer;
+}
