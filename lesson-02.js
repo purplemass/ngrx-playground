@@ -17,6 +17,9 @@ $(function() {
 // ----------------------------------------------------------------------------
 
 function doRx() {
+  const usersIncs = [...'12345'];
+  usersIncs.forEach(x => createUser(x));
+
   const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click')
     .throttle(250);
 
@@ -61,7 +64,7 @@ function doRx() {
 
   // add 3 user carriages
 
-  [1, 2, 3].forEach(x => {
+  usersIncs.forEach(x => {
     const closeButton = document.querySelector(`#close${x}`);
     const closeClickStream = Rx.Observable.fromEvent(closeButton, 'click')
       .startWith('dummy startup click');
@@ -82,6 +85,16 @@ function doRx() {
 
 // ----------------------------------------------------------------------------
 
+function createUser(x) {
+  let html = `
+    <div class="userDiv" id="userDiv${x}">
+      <span class="close" id="close${x}" href="#">X</span>
+      <span class="user" id="user${x}"></span>
+    </div>
+  `
+  $('#results').append(html);
+}
+
 function htmlUser(x, user) {
   if (!user) {
     $(`.userDiv`).hide('fast');
@@ -90,7 +103,6 @@ function htmlUser(x, user) {
     $(`#user${x}`).html(`${user.name} ${user.surname} [${user.gender}] ${user.region}`);
   }
 }
-
 
 function showMessage(msg) {
   $message.textContent = msg;
