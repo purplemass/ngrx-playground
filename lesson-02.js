@@ -7,6 +7,7 @@ const storageKey = 'gitHubData';
 const $input = document.querySelector('#input');
 const $results = document.querySelector('#results');
 const $refreshButton = document.querySelector('.refresh');
+const $resetButton = document.querySelector('.reset');
 const $message = document.querySelector('#message');
 
 $(function() {
@@ -25,6 +26,9 @@ function htmlUser(x, user) {
 
 function doRx() {
   const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click')
+    .throttle(250);
+
+  const resetClickStream = Rx.Observable.fromEvent($resetButton, 'click')
     .throttle(250);
 
   const storageObservable = Rx.Observable.create(observer => {
@@ -71,6 +75,9 @@ function doRx() {
       )
       .merge(
         refreshClickStream.map(() => { return null; })
+      )
+      .merge(
+        resetClickStream.map(() => { return null; })
       )
       .startWith(null)
       .subscribe((user) => htmlUser(x, user));
