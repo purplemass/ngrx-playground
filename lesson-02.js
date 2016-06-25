@@ -29,7 +29,11 @@ function doRx() {
     .throttle(250);
 
   const resetClickStream = Rx.Observable.fromEvent($resetButton, 'click')
-    .throttle(250);
+    .throttle(250)
+    .do(x => {
+      $message.textContent = 'Stored data cleared';
+      localStorage.clear();
+    });
 
   const storageObservable = Rx.Observable.create(observer => {
     var data = localStorage.getItem(storageKey);
@@ -58,6 +62,9 @@ function doRx() {
         .catch(() => gitHubObservable(requestUrl))
         .finally(() => console.log('finally'))
     )
+    .merge(
+      resetClickStream.map(() => { return []; })
+    )
     .share();
 
   // add 3 user carriages
@@ -75,9 +82,6 @@ function doRx() {
       )
       .merge(
         refreshClickStream.map(() => { return null; })
-      )
-      .merge(
-        resetClickStream.map(() => { return null; })
       )
       .startWith(null)
       .subscribe((user) => htmlUser(x, user));
