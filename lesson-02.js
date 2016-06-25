@@ -1,7 +1,8 @@
 "use strict";
 
 // const apiURL = 'https://api.github.com/users?since=';
-const apiURL = 'http://uinames.com/api/?amount=300';
+const apiAmount = 300;
+const apiURL = `http://uinames.com/api/?amount=${apiAmount}`;
 const storageKey = 'gitHubData';
 
 const $input = document.querySelector('#input');
@@ -10,6 +11,8 @@ const $refreshButton = document.querySelector('.refresh');
 const $resetButton = document.querySelector('.reset');
 const $message = document.querySelector('#message');
 
+var amountToShow = 10;
+
 $(function() {
   doRx();
 });
@@ -17,8 +20,9 @@ $(function() {
 // ----------------------------------------------------------------------------
 
 function doRx() {
-  const usersIncs = [...'12345'];
-  usersIncs.forEach(x => createUser(x));
+  console.time('appendHtml');
+  [...Array(apiAmount).keys()].forEach(x => createUser(x));
+  console.timeEnd('appendHtml');
 
   const refreshClickStream = Rx.Observable.fromEvent($refreshButton, 'click')
     .throttle(250);
@@ -64,7 +68,7 @@ function doRx() {
 
   // add 3 user carriages
 
-  usersIncs.forEach(x => {
+  [...Array(amountToShow).keys()].forEach(x => {
     const closeButton = document.querySelector(`#close${x}`);
     const closeClickStream = Rx.Observable.fromEvent(closeButton, 'click')
       .startWith('dummy startup click');
@@ -97,9 +101,9 @@ function createUser(x) {
 
 function htmlUser(x, user) {
   if (!user) {
-    $(`.userDiv`).hide('fast');
+    $(`#userDiv${x}`).hide('fast');
   } else {
-    $(`.userDiv`).show('fast');
+    $(`#userDiv${x}`).show('fast');
     $(`#user${x}`).html(`${user.name} ${user.surname} [${user.gender}] ${user.region}`);
   }
 }
