@@ -69,11 +69,12 @@ function doRx() {
   // add 3 user carriages
 
   [...Array(amountToShow).keys()].forEach(x => {
-    const closeButton = document.querySelector(`#close${x}`);
-    const closeClickStream = Rx.Observable.fromEvent(closeButton, 'click')
+    const userRefreshButton = document.querySelector(`#close${x}`);
+    const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
+      .throttle(250)
       .startWith('dummy startup click');
 
-    closeClickStream
+    userRefreshClickStream
       .combineLatest(responseStream,
         (click, listUsers) => {
           return listUsers[Math.floor(Math.random()*listUsers.length)];
