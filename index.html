@@ -2,32 +2,33 @@
 <html>
 
   <head>
-    <!-- <link rel="stylesheet" href="style.css"> -->
+    <link rel="stylesheet" href="style.css">
   </head>
 
   <body>
-    <h1>Hello RxJS!</h1>
-    <hr>
-    <h5 id="message"></h5>
-    <hr>
-    <input type="text" id="input">
-    <button class="refresh">refresh</button>
-    <button class="reset">reset</button>
-    <ul>
-      <li>
-        <a id="close1" href="#">X</a>
-        <span id="user1"></span>
-      </li>
-      <li>
-        <a id="close2" href="#">X</a>
-        <span id="user2"></span>
-      </li>
-      <li>
-        <a id="close3" href="#">X</a>
-        <span id="user3"></span>
-      </li>
-    </ul>
-    <div id="results"></div>
+    <div class="header">
+      <h1>Hello RxJS!</h1>
+    </div>
+    <div class="content">
+      <h5 id="message"></h5>
+      <input type="text" id="input">
+      <button class="refresh">refresh</button>
+      <button class="reset">reset</button>
+      <!-- <hr class="hr-style-four"> -->
+      <div class="userDiv">
+        <span class="close" id="close1" href="#">X</span>
+        <span class="user" id="user1"></span>
+      </div>
+      <div class="userDiv">
+        <span class="close" id="close2" href="#">X</span>
+        <span class="user" id="user2"></span>
+      </div>
+      <div class="userDiv">
+        <span class="close" id="close3" href="#">X</span>
+        <span class="user" id="user3"></span>
+      </div>
+      <div id="results"></div>
+    </div>
 
     <!-- scripts at the bottom -->
     <script src="http://code.jquery.com/jquery.js"></script>

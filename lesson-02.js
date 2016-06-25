@@ -16,8 +16,9 @@ $(function() {
 
 function htmlUser(x, user) {
   if (!user) {
-    $(`#user${x}`).html('');
+    $(`.userDiv`).hide('fast');
   } else {
+    $(`.userDiv`).show('fast');
     $(`#user${x}`).html(`${user.name} ${user.surname} [${user.gender}] ${user.region}`);
   }
 }
