@@ -62,8 +62,7 @@ function doRx() {
         .finally(() => console.log('finally'))
     )
     .merge(
-      resetClickStream.map(() => { return []; }),
-      refreshClickStream.map(() => { return null; })
+      resetClickStream.map(() => [])
     )
     // .share();
 
@@ -108,7 +107,8 @@ function doRx() {
     .do(x => console.info('MAIN1:', x))
     .flatMap(
       result => {
-        return usersObservable(1, result.users);
+        return Rx.Observable.just(result.dropdown*1000);
+        // return usersObservable(1, result.users);
         // return [...Array(result.dropdown).keys()].map(n => {
         //   return usersObservable(n, result.users);
         // });
@@ -116,7 +116,7 @@ function doRx() {
     )
     .do(x => console.info('MAIN2:', x))
     .subscribe(user => {
-      htmlUser(1, user);
+      // htmlUser(1, user);
     })
 }
 

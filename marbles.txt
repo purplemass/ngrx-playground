@@ -1,8 +1,8 @@
-f refreshClickStream        f-------f----------f------>
-s storageObservable         s-------s----------s------>
+f refreshClickStream        f-------f----------------->
+s storageObservable         s-------s----------------->
 R responseStream            --R---------R----------R-->
 d dropDownChangeStream      d1---------------d2------->
-                            --Rd1-------Rd2-----------> combineLatest
+                            --Rd1-------Rd1--Rd2------> combineLatest
                             -------------------------->
 
 
