@@ -1,0 +1,18 @@
+f refreshClickStream        f-------f----------f------>
+s storageObservable         s-------s----------s------>
+R responseStream            --R---------R----------R-->
+d dropDownChangeStream      d1---------------d2------->
+                            --Rd1-------Rd2-----------> combineLatest
+                            -------------------------->
+
+
+
+usersPopulateObservable t-------t-------t--------->
+usersObservable1        u-------u-------u--------->
+usersObservable2        u-------x-------u--------->
+                        -------------------------->
+                        -------------------------->
+                        -------------------------->
+
+
+resetClickStream        -------------------------->
