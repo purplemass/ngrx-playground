@@ -1,18 +1,16 @@
-f refreshClickStream        f-------f----------------->
-s storageObservable         s-------s----------------->
-R responseStream            --R---------R----------R-->
-d dropDownChangeStream      d1---------------d2------->
-                            --Rd1-------Rd1--Rd2------> combineLatest
-                            -------------------------->
+f refreshClickStream        f-------f---------------------->
+r resetClickStream          -------------------------r----->
+s storageObservable         s-------s---------------------->
+R responseStream            -----R-----R-------------N-----> flatMap
+
+d dropDownChangeStream      d1----------------d3----------->
+actionsStream               -----d1R---d1R----d3R----d3N---> combineLatest
+
+userObservable1             -----1a----1b-----1b-----N----->
+userObservable2             ------------------2a-----N----->
+userObservable3             ------------------3a-----N----->
 
 
-
-usersPopulateObservable t-------t-------t--------->
-usersObservable1        u-------u-------u--------->
-usersObservable2        u-------x-------u--------->
-                        -------------------------->
-                        -------------------------->
-                        -------------------------->
-
-
-resetClickStream        -------------------------->
+userRefreshClickStream1     ------------------c------------>
+actionsStream               -----d1R-----------------------> combineLatest
+userObservable1             -----1a-----------1b----------->

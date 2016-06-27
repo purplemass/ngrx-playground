@@ -13,9 +13,9 @@ const $message = document.querySelector('#message');
 
 var amountToShow = 10;
 
-$(function() {
+(function() {
   doRx();
-});
+})();
 
 // ----------------------------------------------------------------------------
 
@@ -68,24 +68,34 @@ function doRx() {
 
   // add 3 user carriages
 
-  function usersObservable(x, listUsers=[]) {
-    console.log('usersObservable', x);
+  function userObservable(x, listUsers=[]) {
+    console.log('userObservable', x);
     const userRefreshButton = document.querySelector(`#close${x}`);
     const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
       .throttle(250)
-      .startWith('dummy startup click');
+      // .startWith('dummy startup click');
 
+    const timer = Rx.Observable.interval(5000)
+    const randomUser = listUsers[Math.floor(Math.random()*listUsers.length)]
+    const userObservable = Rx.Observable.just({ x: x, user: randomUser });
+    // return timer;
     // return listUsers[Math.floor(Math.random()*listUsers.length)];
+    // return randomUser;
+
+    // return userRefreshClickStream
+    //   .flatMap(randomUser);
+
     return userRefreshClickStream
-      .combineLatest(responseStream,
+      .combineLatest(actionsStream,
         (click, listUsers) => {
           console.count('x');
-          return listUsers[Math.floor(Math.random()*listUsers.length)];
+          htmlUser(x, randomUser);
+          return randomUser;
       })
       // .merge(
       //   refreshClickStream.map(() => { return null; })
       // )
-      // .startWith(null)
+      .startWith(null)
       // .subscribe((user) => htmlUser(x, user));
   };
 
@@ -95,29 +105,33 @@ function doRx() {
     .startWith(1)
     .throttle(250);
 
-  // main stream
-  responseStream
+  // actions stream
+  const actionsStream = dropDownChangeStream
     .combineLatest(
-      dropDownChangeStream, (listUsers, dropdown) => {
+      responseStream, (dropdown, listUsers) => {
         return {
           users: listUsers,
           dropdown: dropdown
         };
     })
-    .do(x => console.info('MAIN1:', x))
+    // .do(x => console.info('MAIN1:', x))
     .flatMap(
       result => {
-        return Rx.Observable.just(result.dropdown*1000);
-        // return usersObservable(1, result.users);
-        // return [...Array(result.dropdown).keys()].map(n => {
-        //   return usersObservable(n, result.users);
-        // });
+        // return Rx.Observable.just(result.dropdown*1000);
+        // return userObservable(1, result.users);
+        return [...Array(result.dropdown).keys()].map(n => {
+          return userObservable(n, result.users);
+        });
       }
     )
-    .do(x => console.info('MAIN2:', x))
+    // .do(x => console.info('MAIN2:', x))
     .subscribe(user => {
-      // htmlUser(1, user);
-    })
+      console.log('user', user);
+      // user.subscribe()
+      if (user._value) {
+        htmlUser(user._value.x, user._value.user);
+      }
+    });
 }
 
 // ----------------------------------------------------------------------------
@@ -153,9 +167,8 @@ function showMessage(msg) {
       return acc;
     })
 
-
-  var subscription = usersObservable.subscribe();
-  var subscription = usersObservable.subscribe(x => console.log(x));
+  var subscription = userObservable.subscribe();
+  var subscription = userObservable.subscribe(x => console.log(x));
   setTimeout(() => {
     console.log('disposed!');
     console.log(subscription);
@@ -173,5 +186,22 @@ function showMessage(msg) {
         console.log(a, b)
         return a;
     })
-    // .subscribe(console.log.bind(console));*/
-    // return Rx.Observable.interval(result.dropdown*1000);
+    // .subscribe(console.log.bind(console));
+*/
+var subject = new Rx.Subject();
+var subscription = subject.subscribe(
+  (x) => {
+    console.log('Next: ' + x.toString());
+  },
+  (err) => {
+    console.log('Error: ' + err);
+  },
+  () => {
+    console.log('Completed');
+  }
+);
+subject.onNext(42);
+// => Next: 42
+subject.onNext(56);
+// => Next: 56
+subject.onCompleted();
