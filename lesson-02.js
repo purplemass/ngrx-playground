@@ -62,30 +62,62 @@ function doRx() {
         .finally(() => console.log('finally'))
     )
     .merge(
-      resetClickStream.map(() => { return []; })
+      resetClickStream.map(() => { return []; }),
+      refreshClickStream.map(() => { return null; })
     )
-    .share();
+    // .share();
 
   // add 3 user carriages
 
-  [...Array(amountToShow).keys()].forEach(x => {
+  function usersObservable(x, listUsers=[]) {
+    console.log('usersObservable', x);
     const userRefreshButton = document.querySelector(`#close${x}`);
     const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
       .throttle(250)
       .startWith('dummy startup click');
 
-    userRefreshClickStream
+    // return listUsers[Math.floor(Math.random()*listUsers.length)];
+    return userRefreshClickStream
       .combineLatest(responseStream,
         (click, listUsers) => {
+          console.count('x');
           return listUsers[Math.floor(Math.random()*listUsers.length)];
-        }
-      )
-      .merge(
-        refreshClickStream.map(() => { return null; })
-      )
-      .startWith(null)
-      .subscribe((user) => htmlUser(x, user));
-  });
+      })
+      // .merge(
+      //   refreshClickStream.map(() => { return null; })
+      // )
+      // .startWith(null)
+      // .subscribe((user) => htmlUser(x, user));
+  };
+
+  // dropdown stream
+  const dropDownChangeStream = Rx.Observable.fromEvent($input, 'change')
+    .map(ev => parseInt(ev.target.value))
+    .startWith(1)
+    .throttle(250);
+
+  // main stream
+  responseStream
+    .combineLatest(
+      dropDownChangeStream, (listUsers, dropdown) => {
+        return {
+          users: listUsers,
+          dropdown: dropdown
+        };
+    })
+    .do(x => console.info('MAIN1:', x))
+    .flatMap(
+      result => {
+        return usersObservable(1, result.users);
+        // return [...Array(result.dropdown).keys()].map(n => {
+        //   return usersObservable(n, result.users);
+        // });
+      }
+    )
+    .do(x => console.info('MAIN2:', x))
+    .subscribe(user => {
+      htmlUser(1, user);
+    })
 }
 
 // ----------------------------------------------------------------------------
@@ -114,3 +146,32 @@ function showMessage(msg) {
 }
 
 // ----------------------------------------------------------------------------
+
+/*
+    .scan((acc, x, i, source) => {
+      console.log(acc, x, i, source);
+      return acc;
+    })
+
+
+  var subscription = usersObservable.subscribe();
+  var subscription = usersObservable.subscribe(x => console.log(x));
+  setTimeout(() => {
+    console.log('disposed!');
+    console.log(subscription);
+    subscription.dispose();
+  }, 2000)
+
+
+  const test$ = Rx.Observable.fromArray([1, 2, 3])
+    .map(x => {
+      console.info(x);
+      htmlUser(x, listUsers[Math.floor(Math.random()*listUsers.length)])
+    })
+    .zip(
+      Rx.Observable.interval(2000), (a, b) => {
+        console.log(a, b)
+        return a;
+    })
+    // .subscribe(console.log.bind(console));*/
+    // return Rx.Observable.interval(result.dropdown*1000);
