@@ -68,12 +68,11 @@ function doRx() {
   // add 3 user carriages
 
   function userObservable(inc=1, listUsers=[]) {
-    console.log('userObservable', inc, listUsers.length);
+    // console.log('userObservable', inc, listUsers.length);
     const userRefreshButton = document.querySelector(`#close${inc}`);
     const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
-      .throttle(250)
+      .throttle(250);
 
-    const timer = Rx.Observable.interval(1000)
     return userRefreshClickStream
       .startWith('startup click')
       .map(x => {
@@ -118,7 +117,6 @@ function doRx() {
   actionsStream
     .subscribe(user => {
       // console.log('main', user);
-      // user.subscribe()
       if (user) {
         htmlUser(user.x, user.user);
       }
