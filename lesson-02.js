@@ -68,7 +68,7 @@ function doRx() {
   // add 3 user carriages
 
   function userObservable(inc=1, listUsers=[]) {
-    // console.log('userObservable', inc, listUsers.length);
+    console.log('userObservable', inc, listUsers.length);
     const userRefreshButton = document.querySelector(`#close${inc}`);
     const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
       .throttle(250);
@@ -76,6 +76,7 @@ function doRx() {
     return userRefreshClickStream
       .startWith('startup click')
       .map(x => {
+        console.log('userObservable', inc);
         const randomUser = listUsers[Math.floor(Math.random()*listUsers.length)];
         return { x: inc, user: randomUser } }
       )
