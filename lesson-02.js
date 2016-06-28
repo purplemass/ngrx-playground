@@ -98,7 +98,7 @@ function doRx() {
         };
     })
     // .do(x => console.info('ACTIONS1:', x))
-    .flatMapLatest(
+    .switchMap( // flatMapLatest === switchMap
       result => {
         return Rx.Observable.merge(
           userObservable(0, result.users),
