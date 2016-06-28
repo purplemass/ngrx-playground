@@ -42,7 +42,8 @@ const observer = Rx.Observer.create(
 const newMessage = new Rx.Subject();
 const removeMessage = new Rx.Subject();
 const sortMessages = new Rx.Subject();
-const messages = Rx.Observable.merge(
+const messages = Rx.Observable
+  .merge(
     newMessage.map(x => {
       return {
         action: 'ADD',
@@ -87,7 +88,7 @@ var subscription = messages.subscribe(observer);
 newMessage.onNext(4);
 newMessage.onNext(2);
 // newMessage.onNext(1);
-// removeMessage.onNext(2);
+removeMessage.onNext(2);
 // removeMessage.onNext(1);
 // newMessage.onNext(3);
 // sortMessages.onNext(true);
