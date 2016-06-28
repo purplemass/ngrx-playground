@@ -1,7 +1,7 @@
 "use strict";
 
 // const apiURL = 'https://api.github.com/users?since=';
-const apiAmount = 300;
+const apiAmount = 3;
 const apiURL = `http://uinames.com/api/?amount=${apiAmount}`;
 const storageKey = 'gitHubData';
 
@@ -89,7 +89,7 @@ function doRx() {
     .throttle(250);
 
   // data stream
-  const dataStream = dropDownChangeStream
+  const actionsStream = dropDownChangeStream
     .combineLatest(
       responseStream, (dropdown, listUsers) => {
         return {
@@ -97,7 +97,9 @@ function doRx() {
           dropdown: dropdown
         };
     })
-    .do(x => console.info('MAIN1:', x))
+    // .do(x => console.info('ACTIONS:', x))
+
+  const dataStream = actionsStream
     .do(x => {
       [...Array(apiAmount).keys()].forEach(inc => htmlUser(inc, null));
     })
@@ -117,13 +119,42 @@ function doRx() {
     })
     .do(x => console.info('MAIN2:', x))
 
-  dataStream
-    .filter(x => !!x)
-    .subscribe(users => {
-      users.forEach((user, inc) => {
-        htmlUser(inc, user);
-      });
+  const arr = [...Array(apiAmount).keys()];
+  arr.forEach(inc => {
+    const userRefreshButton = document.querySelector(`#close${inc}`);
+    const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
+      .throttle(250);
+
+    userRefreshClickStream
+      .startWith('startup click')
+      .combineLatest(actionsStream,
+        (click, listUsers) => {
+          // console.log(inc, click, listUsers);
+          return listUsers.users;
+      })
+      // .scan((x, y, z) => {
+      //   console.log('x', x);
+      //   console.log('y', y);
+      //   console.log('z', z);
+      //   return x;
+      // })
+      .map(x => {
+        // console.log(x);
+        return x[Math.floor(Math.random()*x.length)];
+      })
+      .subscribe(users => {
+        console.log('FINAL', users);
+        htmlUser(inc, users);
+      })
     });
+
+  // dataStream
+  //   .filter(x => !!x)
+  //   .subscribe(users => {
+  //     users.forEach((user, inc) => {
+  //       htmlUser(inc, user);
+  //     });
+  //   });
 }
 
 // ----------------------------------------------------------------------------
