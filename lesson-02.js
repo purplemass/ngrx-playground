@@ -64,39 +64,22 @@ function doRx() {
     .merge(
       resetClickStream.map(() => [])
     )
-    // .share();
 
   // add 3 user carriages
 
-  function userObservable(x, listUsers=[]) {
-    console.log('userObservable', x);
-    const userRefreshButton = document.querySelector(`#close${x}`);
+  function userObservable(inc=1, listUsers=[]) {
+    console.log('userObservable', inc, listUsers.length);
+    const userRefreshButton = document.querySelector(`#close${inc}`);
     const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
       .throttle(250)
-      // .startWith('dummy startup click');
 
-    const timer = Rx.Observable.interval(5000)
-    const randomUser = listUsers[Math.floor(Math.random()*listUsers.length)]
-    const userObservable = Rx.Observable.just({ x: x, user: randomUser });
-    // return timer;
-    // return listUsers[Math.floor(Math.random()*listUsers.length)];
-    // return randomUser;
-
-    // return userRefreshClickStream
-    //   .flatMap(randomUser);
-
+    const timer = Rx.Observable.interval(1000)
     return userRefreshClickStream
-      .combineLatest(actionsStream,
-        (click, listUsers) => {
-          console.count('x');
-          htmlUser(x, randomUser);
-          return randomUser;
-      })
-      // .merge(
-      //   refreshClickStream.map(() => { return null; })
-      // )
-      .startWith(null)
-      // .subscribe((user) => htmlUser(x, user));
+      .startWith('startup click')
+      .map(x => {
+        const randomUser = listUsers[Math.floor(Math.random()*listUsers.length)];
+        return { x: inc, user: randomUser } }
+      )
   };
 
   // dropdown stream
@@ -117,19 +100,27 @@ function doRx() {
     // .do(x => console.info('MAIN1:', x))
     .flatMap(
       result => {
-        // return Rx.Observable.just(result.dropdown*1000);
+        return Rx.Observable.merge(
+          // userObservable(0, result.users)
+          userObservable(0, result.users),
+          userObservable(1, result.users),
+          userObservable(2, result.users),
+          userObservable(3, result.users)
+        )
         // return userObservable(1, result.users);
-        return [...Array(result.dropdown).keys()].map(n => {
-          return userObservable(n, result.users);
-        });
+        // return [...Array(result.dropdown).keys()].map(n => {
+        //   userObservable(n, result.users);
+        // });
       }
     )
     // .do(x => console.info('MAIN2:', x))
+
+  actionsStream
     .subscribe(user => {
-      console.log('user', user);
+      // console.log('main', user);
       // user.subscribe()
-      if (user._value) {
-        htmlUser(user._value.x, user._value.user);
+      if (user) {
+        htmlUser(user.x, user.user);
       }
     });
 }
@@ -158,50 +149,3 @@ function htmlUser(x, user) {
 function showMessage(msg) {
   $message.textContent = msg;
 }
-
-// ----------------------------------------------------------------------------
-
-/*
-    .scan((acc, x, i, source) => {
-      console.log(acc, x, i, source);
-      return acc;
-    })
-
-  var subscription = userObservable.subscribe();
-  var subscription = userObservable.subscribe(x => console.log(x));
-  setTimeout(() => {
-    console.log('disposed!');
-    console.log(subscription);
-    subscription.dispose();
-  }, 2000)
-
-
-  const test$ = Rx.Observable.fromArray([1, 2, 3])
-    .map(x => {
-      console.info(x);
-      htmlUser(x, listUsers[Math.floor(Math.random()*listUsers.length)])
-    })
-    .zip(
-      Rx.Observable.interval(2000), (a, b) => {
-        console.log(a, b)
-        return a;
-    })
-    // .subscribe(console.log.bind(console));
-*/
-var subject = new Rx.Subject();
-var subscription = subject.subscribe(
-  (x) => {
-    console.log('Next: ' + x.toString());
-  },
-  (err) => {
-    console.log('Error: ' + err);
-  },
-  () => {
-    console.log('Completed');
-  }
-);
-subject.onNext(42);
-// => Next: 42
-subject.onNext(56);
-// => Next: 56
-subject.onCompleted();
