@@ -1,7 +1,7 @@
 "use strict";
 
 // const apiURL = 'https://api.github.com/users?since=';
-const apiAmount = 3;
+const apiAmount = 300;
 const apiURL = `http://uinames.com/api/?amount=${apiAmount}`;
 const storageKey = 'gitHubData';
 
@@ -99,27 +99,7 @@ function doRx() {
     })
     // .do(x => console.info('ACTIONS:', x))
 
-  const dataStream = actionsStream
-    .do(x => {
-      [...Array(apiAmount).keys()].forEach(inc => htmlUser(inc, null));
-    })
-    .filter(x => x.users.length)
-    .map(result => {
-      var ret = []
-      const temp = Rx.Observable
-        .range(1, result.dropdown)
-        .map(x => {
-          const listUsers = result.users;
-          const randomUser = listUsers[Math.floor(Math.random()*listUsers.length)];
-          ret.push(randomUser);
-        })
-        .subscribe()
-      temp.dispose();
-      return ret;
-    })
-    .do(x => console.info('MAIN2:', x))
-
-  const arr = [...Array(apiAmount).keys()];
+  const arr = [...Array(3).keys()];
   arr.forEach(inc => {
     const userRefreshButton = document.querySelector(`#close${inc}`);
     const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
@@ -132,18 +112,14 @@ function doRx() {
           // console.log(inc, click, listUsers);
           return listUsers.users;
       })
-      // .scan((x, y, z) => {
-      //   console.log('x', x);
-      //   console.log('y', y);
-      //   console.log('z', z);
-      //   return x;
-      // })
       .map(x => {
         // console.log(x);
         return x[Math.floor(Math.random()*x.length)];
       })
+      // .share()
+      // .do(x => console.info('user:', inc))
       .subscribe(users => {
-        console.log('FINAL', users);
+        // console.log('FINAL', users);
         htmlUser(inc, users);
       })
     });
