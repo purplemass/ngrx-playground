@@ -97,40 +97,19 @@ function doRx() {
           dropdown: dropdown
         };
     })
-    // .do(x => console.info('ACTIONS:', x))
-
-  const arr = [...Array(3).keys()];
-  arr.forEach(inc => {
-    const userRefreshButton = document.querySelector(`#close${inc}`);
-    const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
-      .throttle(250);
-
-    userRefreshClickStream
-      .startWith('startup click')
-      .combineLatest(actionsStream,
-        (click, listUsers) => {
-          // console.log(inc, click, listUsers);
-          return listUsers.users;
-      })
-      .map(x => {
-        // console.log(x);
-        return x[Math.floor(Math.random()*x.length)];
-      })
-      // .share()
-      // .do(x => console.info('user:', inc))
-      .subscribe(users => {
-        // console.log('FINAL', users);
-        htmlUser(inc, users);
-      })
+    // .do(x => console.info('ACTIONS1:', x))
+    .flatMapLatest(
+      result => {
+        return Rx.Observable.merge(
+          userObservable(0, result.users),
+          userObservable(1, result.users)
+        );
+      }
+    )
+    // .do(x => console.info('ACTIONS2:', x))
+    .subscribe(users => {
+      htmlUser(users.x, users.user);
     });
-
-  // dataStream
-  //   .filter(x => !!x)
-  //   .subscribe(users => {
-  //     users.forEach((user, inc) => {
-  //       htmlUser(inc, user);
-  //     });
-  //   });
 }
 
 // ----------------------------------------------------------------------------
