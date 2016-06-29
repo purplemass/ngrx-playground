@@ -36,7 +36,14 @@ function htmlUser(x, user) {
     $(`#userDiv${x}`).hide('fast');
   } else {
     $(`#userDiv${x}`).show('fast');
-    $(`#user${x}`).html(`${x} ${user.name} ${user.surname} [${user.gender}] ${user.region}`);
+    $(`#user${x}`).html(`
+      <small>${x})</small>
+      <strong>${user.name}</strong>
+      :
+      <small>
+      ${user.surname} [${user.gender}] ${user.region}
+      </small>
+    `);
   }
 }
 

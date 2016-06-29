@@ -2,7 +2,7 @@
 // unknown number of Observables
 // http://stackoverflow.com/questions/32006174/merging-unknown-number-of-observables-with-rxjs
 
-const dummyUser = {
+let dummyUser = {
   'name': 'name',
   'surname': 'surname',
   'gender': 'gender',
@@ -17,10 +17,14 @@ const dummyUser = {
 
 function doRx() {
 
-  function makeSource(x) {
+  function makeSource(x, dummyUser) {
     return Rx.Observable
       .just(x)
-      .map(x => Rx.Observable.just(`${x}`));
+      .do(x => {
+        dummyUser.name = `user 10${x}`;
+        htmlUser(x, dummyUser);
+      })
+      // .map(x => Rx.Observable.just(`${x}`));
   }
 
   const dropDownChangeStream = Rx.Observable.fromEvent($input, 'change')
@@ -32,13 +36,13 @@ function doRx() {
     // capture the latest set of Observables
     .scan((acc, x) => {
       // console.info('acc:', acc)
-      // acc.forEach(x => {
-      //   console.log('unsubscribe', x);
-      //   x.dispose();
-      // });
+      acc.forEach((x, inc) => {
+        // console.log('unsubscribe', inc);
+        htmlUser(inc, null);
+      });
       let arr = [];
       [...Array(x).keys()].forEach(x => {
-        arr.push(makeSource(x));
+        arr.push(makeSource(x, dummyUser));
       });
       return arr;
     }, [])
@@ -50,14 +54,12 @@ function doRx() {
     // want to keep from recreating this stream for each
     // .share()
     // .do(x => console.info('STREAM:', x))
-    .subscribe(arr => {
-      [...Array(10).keys()].forEach(x => {
-        htmlUser(x, null);
-      });
-      arr.forEach(x => {
-        x.subscribe(x => {
-          htmlUser(x, dummyUser);
-        });
-      });
-    });
+    .subscribe()
+    // .subscribe(arr => {
+    //   arr.forEach(x => {
+    //     x.subscribe(x => {
+    //       htmlUser(x, dummyUser);
+    //     });
+    //   });
+    // });
 }
