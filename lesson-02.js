@@ -51,7 +51,7 @@ function doRx() {
   // add 3 user carriages
 
   function userObservable(inc=1, listUsers=[]) {
-    console.log('userObservable', inc, listUsers.length);
+    // console.log('userObservable', inc, listUsers.length);
     const userRefreshButton = document.querySelector(`#close${inc}`);
     const userRefreshClickStream = Rx.Observable.fromEvent(userRefreshButton, 'click')
       .throttle(250);
@@ -59,7 +59,7 @@ function doRx() {
     return userRefreshClickStream
       .startWith('startup click')
       .map(x => {
-        console.log('userObservable', inc);
+        // console.log('userObservable', inc);
         const randomUser = listUsers[Math.floor(Math.random()*listUsers.length)];
         return { x: inc, user: randomUser } }
       )
@@ -80,17 +80,26 @@ function doRx() {
           dropdown: dropdown
         };
     })
+    .scan((acc, result) => {
+      acc.forEach((result, inc) => {
+        htmlUser(inc, null);
+      });
+      let arr = [];
+      [...Array(result.dropdown).keys()].forEach(x => {
+        arr.push(userObservable(x, result.users));
+      });
+      return arr;
+    }, [])
     // .do(x => console.info('ACTIONS1:', x))
     .switchMap( // flatMapLatest === switchMap
-      result => {
-        return Rx.Observable.merge(
-          userObservable(0, result.users),
-          userObservable(1, result.users)
-        );
+      arr => {
+        return Rx.Observable.combineLatest(arr);
       }
     )
     // .do(x => console.info('ACTIONS2:', x))
-    .subscribe(users => {
-      htmlUser(users.x, users.user);
+    .subscribe(arr => {
+      arr.forEach(result => {
+        htmlUser(result.x, result.user);
+      });
     });
 }
