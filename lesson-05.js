@@ -51,6 +51,9 @@ function doRx() {
     // .share()
     // .do(x => console.info('STREAM:', x))
     .subscribe(arr => {
+      [...Array(10).keys()].forEach(x => {
+        htmlUser(x, null);
+      });
       arr.forEach(x => {
         x.subscribe(x => {
           htmlUser(x, dummyUser);
